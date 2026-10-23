@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>优势测评 · 数据统计</title>
+  <style>
+    :root {
+      --primary: #2F7D6D; --primary-dark: #1F5A4E; --primary-light: #E1F0EC;
+      --accent: #D85A30; --bg: #F7F6F2; --card: #FFFFFF;
+      --text: #26302D; --muted: #8A938F; --border: #E4E4DE;
+      --radius: 14px; --shadow: 0 2px 12px rgba(38,48,45,0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.6; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 40px 20px 60px; }
+    h1 { font-size: 22px; margin-bottom: 4px; }
+    .sub { color: var(--muted); font-size: 13px; margin-bottom: 28px; }
+    .gate { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; box-shadow: var(--shadow); }
+    .gate input { width: 100%; padding: 13px 16px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 16px; margin: 14px 0; text-align: center; letter-spacing: 0.1em; }
+    .gate input:focus { outline: none; border-color: var(--primary); }
+    .btn { display: inline-block; width: 100%; padding: 14px; border: none; border-radius: 999px; background: var(--primary); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; }
+    .btn:active { opacity: 0.85; }
+    .btn:disabled { opacity: 0.5; cursor: default; }
+    .err { color: var(--accent); font-size: 13px; min-height: 20px; margin-top: 10px; }
+    .hint { color: var(--muted); font-size: 12px; margin-top: 14px; }
+    #dashboard { display: none; }
+    .refresh-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .refresh-row .time { color: var(--muted); font-size: 12px; }
+    .refresh-btn { background: none; border: 1px solid var(--primary); color: var(--primary); border-radius: 999px; padding: 6px 16px; font-size: 13px; cursor: pointer; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 26px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 12px; text-align: center; box-shadow: var(--shadow); }
+    .card .v { display: block; font-size: 24px; font-weight: 700; color: var(--primary); }
+    .card .l { font-size: 12px; color: var(--muted); }
+    .card.hot .v { color: var(--accent); }
+    h2 { font-size: 16px; margin: 26px 0 12px; }
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+    .row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .row:last-child { margin-bottom: 0; }
+    .row .name { width: 96px; font-size: 13px; flex-shrink: 0; }
+    .row .track { flex: 1; height: 12px; background: var(--border); border-radius: 999px; overflow: hidden; }
+    .row .fill { height: 100%; background: var(--primary); border-radius: 999px; transition: width 0.4s; }
+    .row.dist .fill { background: var(--accent); }
+    .row .val { width: 56px; text-align: right; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; flex-shrink: 0; }
+    .empty { color: var(--muted); font-size: 13px; text-align: center; padding: 10px 0; }
+    .d-card { border-bottom: 1px solid var(--border); padding: 12px 2px; }
+    .d-card:last-child { border-bottom: none; }
+    .d-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+    .d-time { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .d-dur { font-size: 12px; color: var(--muted); }
+    .d-flag { font-size: 11px; border-radius: 999px; padding: 1px 8px; }
+    .d-flag.ok { color: var(--primary); background: var(--primary-light); }
+    .d-flag.bad { color: var(--accent); background: #FDF0EC; }
+    .d-top { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+    .d-chip { font-size: 12px; color: #fff; background: var(--primary); border-radius: 999px; padding: 2px 10px; }
+    .d-chip.first { background: var(--accent); }
+    .d-scores { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px 8px; }
+    .d-s { font-size: 12px; color: #4A5450; }
+    .d-s b { color: var(--primary); font-weight: 600; }
+    .foot { margin-top: 40px; text-align: center; color: var(--muted); font-size: 11px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>📊 优势测评 · 数据统计</h1>
+    <p class="sub">完测率 · 优势分布 · 转化漏斗 · 7 日趋势</p>
+
+    <div class="gate" id="gate">
+      <p style="font-weight:600">请输入管理口令</p>
+      <input type="password" id="passcode" placeholder="管理口令" autocomplete="off">
+      <button class="btn" id="btn-enter">查看数据</button>
+      <p class="err" id="gate-err"></p>
+      <p class="hint">数据均为匿名聚合统计，不含任何个人身份信息</p>
+    </div>
+
+    <div id="dashboard">
+      <div class="refresh-row">
+        <span class="time" id="refresh-time"></span>
+        <button class="refresh-btn" id="btn-refresh">刷新数据</button>
+      </div>
+
+      <div class="cards">
+        <div class="card"><span class="v" id="m-total">–</span><span class="l">累计完测</span></div>
+        <div class="card"><span class="v" id="m-valid">–</span><span class="l">有效作答</span></div>
+        <div class="card hot"><span class="v" id="m-clients">–</span><span class="l">独立访客</span></div>
+        <div class="card"><span class="v" id="m-starts">–</span><span class="l">开始作答</span></div>
+        <div class="card"><span class="v" id="m-rate">–</span><span class="l">完测率</span></div>
+        <div class="card"><span class="v" id="m-dur">–</span><span class="l">平均用时</span></div>
+      </div>
+
+      <h2>Top1 优势分布（首优势人数）</h2>
+      <div class="panel" id="dist-panel"></div>
+
+      <h2>八域平均分（全体样本）</h2>
+      <div class="panel" id="avg-panel"></div>
+
+      <h2>转化事件</h2>
+      <div class="panel" id="event-panel"></div>
+
+      <h2>近 7 日完测趋势</h2>
+      <div class="panel" id="daily-panel"></div>
+
+      <h2>测评明细（最近 50 条）</h2>
+      <div class="panel" id="detail-panel"></div>
+    </div>
+
+    <p class="foot">优势测评 H5 · 数据后台 · 仅限运营者使用</p>
+  </div>
+
+  <script src="sdk.js"></script>
+  <script src="app.data.js"></script>
+  <script>
+    const cloud = WorkBuddyCloud.createWorkBuddyCloud({
+      endpoint: "https://strengths-quiz.app.workbuddy.host",
+      oauthRelayBaseUrl: "https://www.workbuddy.cn/v2/as/genie-baas/oauth",
+      publishableKey: "wbpk_7VablHer3tSbU4ug8vLdZD_8fxWB2cJPHR8mnBI9tmkjU3FV4CunYZW"
+    });
+    const PASSCODE_KEY = "sq_admin_passcode";
+
+    function el(id) { return document.getElementById(id); }
+
+    async function loadStats(passcode) {
+      const { data, error } = await cloud.database.rpc("quiz_stats", { passcode: passcode });
+      if (error) throw error;
+      const parsed = typeof data === "string" ? JSON.parse(data) : data;
+      const { data: detailData, error: detailError } = await cloud.database.rpc("quiz_detail", { passcode: passcode, limit_count: 50 });
+      if (detailError) throw detailError;
+      parsed.detail = typeof detailData === "string" ? JSON.parse(detailData) : (detailData || []);
+      return parsed;
+    }
+
+    function render(s) {
+      el("m-total").textContent = s.total;
+      el("m-valid").textContent = s.valid;
+      el("m-clients").textContent = s.uniqueClients;
+      const starts = (s.events && s.events.start) || 0;
+      el("m-starts").textContent = starts;
+      el("m-rate").textContent = starts > 0 ? Math.round(s.total / starts * 100) + "%" : "–";
+      const dur = s.avgDurationSec || 0;
+      el("m-dur").textContent = dur >= 60 ? Math.floor(dur / 60) + "分" + (dur % 60) + "秒" : dur + "秒";
+
+      // Top1 分布
+      const dist = s.top1Distribution || {};
+      const distEntries = Object.keys(dist).sort((a, b) => dist[b] - dist[a]);
+      const distMax = Math.max(1, ...distEntries.map(k => dist[k]));
+      el("dist-panel").innerHTML = distEntries.length === 0
+        ? '<p class="empty">暂无数据</p>'
+        : distEntries.map(k => {
+            const n = DOMAINS[k] ? DOMAINS[k].name : k;
+            const pct = (dist[k] / distMax * 100).toFixed(0);
+            return '<div class="row dist"><span class="name">' + n + '</span><span class="track"><span class="fill" style="width:' + pct + '%"></span></span><span class="val">' + dist[k] + ' 人</span></div>';
+          }).join("");
+
+      // 八域均分
+      const avgs = s.domainAverages || {};
+      const avgMax = Math.max(1, ...Object.values(avgs));
+      const avgEntries = Object.keys(DOMAINS);
+      el("avg-panel").innerHTML = Object.keys(avgs).length === 0
+        ? '<p class="empty">暂无数据</p>'
+        : avgEntries.map(k => {
+            const v = avgs[k] || 0;
+            const pct = (v / 5 * 100).toFixed(0);
+            return '<div class="row"><span class="name">' + DOMAINS[k].name + '</span><span class="track"><span class="fill" style="width:' + pct + '%"></span></span><span class="val">' + Number(v).toFixed(2) + '</span></div>';
+          }).join("");
+
+      // 事件
+      const ev = s.events || {};
+      const evLabels = { start: "开始作答", poster: "生成分享海报", coach: "点击教练入口" };
+      const evEntries = Object.keys(ev);
+      el("event-panel").innerHTML = evEntries.length === 0
+        ? '<p class="empty">暂无数据</p>'
+        : evEntries.map(k => '<div class="row"><span class="name">' + (evLabels[k] || k) + '</span><span class="track"><span class="fill" style="width:' + Math.min(100, ev[k]) + '%"></span></span><span class="val">' + ev[k] + ' 次</span></div>').join("");
+
+      // 7 日趋势
+      const daily = s.daily || [];
+      const dMax = Math.max(1, ...daily.map(d => d.cnt));
+      el("daily-panel").innerHTML = daily.length === 0
+        ? '<p class="empty">近 7 日暂无完测记录</p>'
+        : daily.map(d => '<div class="row"><span class="name">' + d.day + '</span><span class="track"><span class="fill" style="width:' + (d.cnt / dMax * 100).toFixed(0) + '%"></span></span><span class="val">' + d.cnt + ' 人</span></div>').join("");
+
+      // 测评明细
+      const detail = s.detail || [];
+      el("detail-panel").innerHTML = detail.length === 0
+        ? '<p class="empty">暂无完测记录</p>'
+        : detail.map(function (d) {
+            const dur = d.duration_sec != null
+              ? (d.duration_sec >= 60 ? Math.floor(d.duration_sec / 60) + "分" + (d.duration_sec % 60) + "秒" : d.duration_sec + "秒")
+              : "–";
+            const top5 = d.top5 || [];
+            const chips = top5.map(function (k, i) {
+              const n = DOMAINS[k] ? DOMAINS[k].name : k;
+              return '<span class="d-chip' + (i === 0 ? ' first' : '') + '">TOP' + (i + 1) + ' ' + n + '</span>';
+            }).join("");
+            const scores = Object.keys(DOMAINS).map(function (k) {
+              const v = d.domain_scores && d.domain_scores[k] != null ? Number(d.domain_scores[k]).toFixed(1) : "–";
+              return '<span class="d-s">' + DOMAINS[k].name + ' <b>' + v + '</b></span>';
+            }).join("");
+            const flags = (d.warnings && d.warnings.length)
+              ? '<span class="d-flag bad">低质量(' + d.warnings.length + '项预警)</span>'
+              : '<span class="d-flag ok">有效</span>';
+            return '<div class="d-card">' +
+              '<div class="d-head"><span class="d-time">' + (d.time || "") + '</span><span class="d-dur">用时 ' + dur + '</span>' + flags + '</div>' +
+              '<div class="d-top">' + chips + '</div>' +
+              '<div class="d-scores">' + scores + '</div>' +
+              '</div>';
+          }).join("");
+
+      el("refresh-time").textContent = "更新于 " + new Date().toLocaleTimeString("zh-CN");
+    }
+
+    async function enter(passcode) {
+      el("gate-err").textContent = "";
+      el("btn-enter").disabled = true;
+      el("btn-enter").textContent = "加载中…";
+      try {
+        const s = await loadStats(passcode);
+        try { localStorage.setItem(PASSCODE_KEY, passcode); } catch (e) {}
+        el("gate").style.display = "none";
+        el("dashboard").style.display = "block";
+        render(s);
+      } catch (e) {
+        el("gate-err").textContent = e && e.code === "42501" ? "口令错误，请重试" : "加载失败，请稍后重试";
+      } finally {
+        el("btn-enter").disabled = false;
+        el("btn-enter").textContent = "查看数据";
+      }
+    }
+
+    el("btn-enter").addEventListener("click", () => enter(el("passcode").value.trim()));
+    el("passcode").addEventListener("keydown", (e) => { if (e.key === "Enter") enter(el("passcode").value.trim()); });
+    el("btn-refresh").addEventListener("click", () => {
+      let pc = ""; try { pc = localStorage.getItem(PASSCODE_KEY) || ""; } catch (e) {}
+      if (pc) { loadStats(pc).then(render).catch(() => {}); }
+    });
+    (function resumeSession() {
+      let pc = ""; try { pc = localStorage.getItem(PASSCODE_KEY) || ""; } catch (e) {}
+      if (pc) { el("passcode").value = pc; enter(pc); }
+    })();
+  </script>
+</body>
+</html>
