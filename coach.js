@@ -11,7 +11,7 @@
     "minimax-m3.1-flash": { reasoning: { effort: "low" } },
     "deepseek-v4.1-flash": { reasoning: { enabled: false } }
   };
-  const FREE_MAX_ROUNDS = 30;     // 免费会话轮次上限
+  const FREE_MAX_ROUNDS = 10;     // 免费会话轮次上限
   const PAID_DAILY_ROUNDS = 60;   // 付费用户每日轮次上限
   const HISTORY_WINDOW = 16;      // 送入模型的最大历史消息数（成本护栏）
   const MAX_TOKENS = 600;         // 单次回复上限（成本护栏）
@@ -321,6 +321,13 @@
     bind("#coach-send", send);
     bind("#coach-redeem", redeem);
     bind("#coach-paywall-close", function () { $("#coach-paywall").style.display = "none"; });
+    // 套餐选择（试运营期实际档期由兑换码决定，此处选择仅作展示确认）
+    document.querySelectorAll(".pw-plan").forEach(function (el) {
+      el.addEventListener("click", function () {
+        document.querySelectorAll(".pw-plan").forEach(function (p) { p.classList.remove("selected"); });
+        el.classList.add("selected");
+      });
+    });
     bind("#coach-new-session", function () {
       if (!confirm("开始新会话？当前会话将清空（免费额度仅 1 次会话）")) return;
       localStorage.removeItem(COACH_STORAGE_KEY);

@@ -153,8 +153,10 @@ body {
 .paywall-card h3 { font-size: 20px; margin-bottom: 4px; }
 .pw-sub { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
 .pw-plans { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
-.pw-plan { display: flex; align-items: center; justify-content: space-between; border: 1.5px solid var(--border); border-radius: 14px; padding: 12px 16px; }
-.pw-plan.hot { border-color: var(--accent); background: #FDF7F4; }
+.pw-plan { display: flex; align-items: center; justify-content: space-between; border: 1.5px solid var(--border); border-radius: 14px; padding: 12px 16px; cursor: pointer; transition: border-color .15s, background .15s; }
+.pw-plan.hot, .pw-plan.selected { border-color: var(--accent); background: #FDF7F4; }
+.pw-plan.selected { box-shadow: 0 0 0 1.5px var(--accent); }
+.pw-plan.selected .pt::after { content: " ✓"; color: var(--accent); font-size: 13px; font-weight: 700; }
 .pw-plan .pt { font-size: 15px; font-weight: 700; }
 .pw-plan .hot-tag { font-style: normal; font-size: 10px; color: #fff; background: var(--accent); border-radius: 999px; padding: 1px 8px; margin-left: 4px; vertical-align: 2px; }
 .pw-plan .pp { font-size: 20px; font-weight: 700; color: var(--accent); }
@@ -293,9 +295,9 @@ body {
           <h3>继续和小悠聊</h3>
           <p class="pw-sub">免费体验已用完，解锁后不限会话次数</p>
           <div class="pw-plans">
-            <div class="pw-plan"><span class="pt">月卡</span><span class="pp">¥9.9<span class="pu">/月</span></span><span class="pd">每日 60 轮对话</span></div>
-            <div class="pw-plan hot"><span class="pt">季卡 <i class="hot-tag">超值</i></span><span class="pp">¥24.9<span class="pu">/季</span></span><span class="pd">约 ¥8.3/月</span></div>
-            <div class="pw-plan"><span class="pt">年卡</span><span class="pp">¥69<span class="pu">/年</span></span><span class="pd">约 ¥5.8/月</span></div>
+            <div class="pw-plan" data-plan="monthly"><span class="pt">月卡</span><span class="pp">¥29.9<span class="pu">/月</span></span><span class="pd">每日 60 轮对话</span></div>
+            <div class="pw-plan hot selected" data-plan="quarterly"><span class="pt">季卡 <i class="hot-tag">超值</i></span><span class="pp">¥75<span class="pu">/季</span></span><span class="pd">约 ¥25/月，立省 16%</span></div>
+            <div class="pw-plan" data-plan="yearly"><span class="pt">年卡 <i class="hot-tag">最划算</i></span><span class="pp">¥199<span class="pu">/年</span></span><span class="pd">约 ¥16.6/月，立省 44%</span></div>
           </div>
           <div class="pw-redeem">
             <input id="coach-code-input" placeholder="输入兑换码" autocomplete="off">
@@ -2910,7 +2912,7 @@ function reportEvent(eventType) {
     "minimax-m3.1-flash": { reasoning: { effort: "low" } },
     "deepseek-v4.1-flash": { reasoning: { enabled: false } }
   };
-  const FREE_MAX_ROUNDS = 30;     // 免费会话轮次上限
+  const FREE_MAX_ROUNDS = 10;     // 免费会话轮次上限
   const PAID_DAILY_ROUNDS = 60;   // 付费用户每日轮次上限
   const HISTORY_WINDOW = 16;      // 送入模型的最大历史消息数（成本护栏）
   const MAX_TOKENS = 600;         // 单次回复上限（成本护栏）
@@ -3220,6 +3222,13 @@ function reportEvent(eventType) {
     bind("#coach-send", send);
     bind("#coach-redeem", redeem);
     bind("#coach-paywall-close", function () { $("#coach-paywall").style.display = "none"; });
+    // 套餐选择（试运营期实际档期由兑换码决定，此处选择仅作展示确认）
+    document.querySelectorAll(".pw-plan").forEach(function (el) {
+      el.addEventListener("click", function () {
+        document.querySelectorAll(".pw-plan").forEach(function (p) { p.classList.remove("selected"); });
+        el.classList.add("selected");
+      });
+    });
     bind("#coach-new-session", function () {
       if (!confirm("开始新会话？当前会话将清空（免费额度仅 1 次会话）")) return;
       localStorage.removeItem(COACH_STORAGE_KEY);
