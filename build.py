@@ -24,6 +24,6 @@ def build(template_path, out_path, css_files, js_files):
     open(out_path, "w").write(html)
     print(out_path, "->", len(html), "bytes")
 
-build("index.template.html", "index.html", ["style.css"], ["sdk.js", "qrcode.js", "app.data.js", "cloud.js", "app.js"])
+build("index.template.html", "index.html", ["style.css"], ["sdk.js", "qrcode.js", "app.data.js", "cloud.js", "coach.js", "app.js"])
 build("admin.template.html", "admin.html", [], ["sdk.js", "app.data.js"])
 print("构建完成")

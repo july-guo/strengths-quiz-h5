@@ -428,11 +428,7 @@
     bind("#btn-back", goBack);
     bind("#btn-restart", restart);
     bind("#btn-restart2", restart);
-    // 教练 CTA 占位：后续接入私域企微或支付链接
-    bind("#btn-coach", safe(() => {
-      reportEvent("coach");
-      alert("优势教练 1v1 服务入口（占位）：后续接入客服/下单页");
-    }));
+    // 教练入口由 coach.js 负责（含对话与付费逻辑）
     // 海报
     bind("#btn-poster", safe(renderPoster));
     bind("#btn-poster-close", closePoster);

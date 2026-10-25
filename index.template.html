@@ -217,8 +217,8 @@ body {
 
       <div class="cta-box">
         <p class="ct1">这份报告只是起点</p>
-        <p class="ct2">想知道优势如何变成职业选择、变现方向和成长路径？来和优势教练聊聊你的组合。</p>
-        <button class="btn accent" id="btn-coach">和优势教练聊聊</button>
+        <p class="ct2">想知道优势如何变成职业选择、变现方向和成长路径？来和 AI 教练小悠聊聊你的组合。</p>
+        <button class="btn accent" id="btn-coach">和 AI 教练聊聊</button>
         <button class="btn ghost" id="btn-poster">📸 生成我的优势海报</button>
       </div>
 
@@ -239,11 +239,47 @@ body {
       </p>
     </section>
 
+    <!-- AI 教练页 -->
+    <section class="view" id="view-coach">
+      <div class="coach-top">
+        <button class="back-btn" id="btn-coach-back">← 返回报告</button>
+        <div class="coach-title">小悠 · AI 优势教练</div>
+        <button class="back-btn" id="coach-new-session">新会话</button>
+      </div>
+      <div class="coach-quota-bar" id="coach-quota"></div>
+      <div class="coach-chat" id="coach-chat"></div>
+      <div class="coach-status" id="coach-status"></div>
+      <div class="coach-input-row">
+        <textarea id="coach-input" rows="1" placeholder="说说你最近的事…"></textarea>
+        <button class="coach-send-btn" id="coach-send">发送</button>
+      </div>
+      <p class="coach-disclaimer">小悠是 AI 陪伴，不替代专业心理咨询 · 危机时刻请拨打心理援助热线 12356</p>
+
+      <div class="coach-paywall" id="coach-paywall" style="display:none">
+        <div class="paywall-card">
+          <h3>继续和小悠聊</h3>
+          <p class="pw-sub">免费体验已用完，解锁后不限会话次数</p>
+          <div class="pw-plans">
+            <div class="pw-plan"><span class="pt">月卡</span><span class="pp">¥9.9<span class="pu">/月</span></span><span class="pd">每日 60 轮对话</span></div>
+            <div class="pw-plan hot"><span class="pt">季卡 <i class="hot-tag">超值</i></span><span class="pp">¥24.9<span class="pu">/季</span></span><span class="pd">约 ¥8.3/月</span></div>
+            <div class="pw-plan"><span class="pt">年卡</span><span class="pp">¥69<span class="pu">/年</span></span><span class="pd">约 ¥5.8/月</span></div>
+          </div>
+          <div class="pw-redeem">
+            <input id="coach-code-input" placeholder="输入兑换码" autocomplete="off">
+            <button class="btn accent" id="coach-redeem">兑换解锁</button>
+          </div>
+          <p class="pw-note">试运营期：加教练微信付款后获取兑换码<br>（季度附赠 1 次真人优势教练文字答疑）</p>
+          <button class="btn ghost" id="coach-paywall-close">暂不解锁</button>
+        </div>
+      </div>
+    </section>
+
   </div>
   <script src="sdk.js"></script>
   <script src="qrcode.js"></script>
   <script src="app.data.js"></script>
   <script src="cloud.js"></script>
+  <script src="coach.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

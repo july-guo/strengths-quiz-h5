@@ -131,6 +131,39 @@ body {
 .cta-box .ct2 { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
 .cta-box .btn + .btn { margin-top: 10px; }
 .report-foot { text-align: center; color: var(--muted); font-size: 11px; padding: 28px 0 40px; }
+
+/* ---------- AI 教练页 ---------- */
+.coach-top { display: flex; align-items: center; justify-content: space-between; padding: 14px clamp(16px, 4vw, 32px) 8px; }
+.coach-title { font-size: 16px; font-weight: 700; }
+.coach-quota-bar { text-align: center; font-size: 11px; color: var(--muted); padding-bottom: 8px; }
+.coach-chat { flex: 1; overflow-y: auto; padding: 10px clamp(16px, 4vw, 32px) 12px; display: flex; flex-direction: column; gap: 10px; min-height: 40vh; }
+.bubble { max-width: 82%; padding: 11px 14px; border-radius: 16px; font-size: 15px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+.b-ai { align-self: flex-start; background: var(--card); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+.b-user { align-self: flex-end; background: var(--primary); color: #fff; border-bottom-right-radius: 4px; }
+.coach-status { text-align: center; font-size: 11px; color: var(--muted); min-height: 16px; padding: 2px 0; }
+.coach-input-row { display: flex; gap: 10px; padding: 10px clamp(16px, 4vw, 32px) 6px; }
+.coach-input-row textarea { flex: 1; resize: none; border: 1.5px solid var(--border); border-radius: 14px; padding: 10px 14px; font-size: 15px; font-family: inherit; background: var(--card); color: var(--text); }
+.coach-send-btn { padding: 0 22px; border: none; border-radius: 14px; background: var(--primary); color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; }
+.coach-send-btn:disabled { opacity: 0.5; }
+.coach-disclaimer { text-align: center; font-size: 10px; color: var(--muted); padding: 4px 20px 24px; }
+
+/* 付费浮层 */
+.coach-paywall { position: fixed; inset: 0; background: rgba(20,28,26,0.7); z-index: 60; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.paywall-card { width: 100%; max-width: 400px; background: #fff; border-radius: 20px; padding: 24px 20px; text-align: center; max-height: 86vh; overflow-y: auto; }
+.paywall-card h3 { font-size: 20px; margin-bottom: 4px; }
+.pw-sub { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+.pw-plans { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.pw-plan { display: flex; align-items: center; justify-content: space-between; border: 1.5px solid var(--border); border-radius: 14px; padding: 12px 16px; }
+.pw-plan.hot { border-color: var(--accent); background: #FDF7F4; }
+.pw-plan .pt { font-size: 15px; font-weight: 700; }
+.pw-plan .hot-tag { font-style: normal; font-size: 10px; color: #fff; background: var(--accent); border-radius: 999px; padding: 1px 8px; margin-left: 4px; vertical-align: 2px; }
+.pw-plan .pp { font-size: 20px; font-weight: 700; color: var(--accent); }
+.pw-plan .pu { font-size: 12px; color: var(--muted); font-weight: 400; }
+.pw-plan .pd { font-size: 12px; color: var(--muted); }
+.pw-redeem { display: flex; gap: 10px; margin-bottom: 12px; }
+.pw-redeem input { flex: 1; border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 14px; font-size: 14px; }
+.pw-redeem .btn { width: auto; padding: 10px 20px; }
+.pw-note { font-size: 12px; color: var(--muted); line-height: 1.7; margin-bottom: 12px; }
 </style>
 </head>
 <body>
@@ -217,8 +250,8 @@ body {
 
       <div class="cta-box">
         <p class="ct1">这份报告只是起点</p>
-        <p class="ct2">想知道优势如何变成职业选择、变现方向和成长路径？来和优势教练聊聊你的组合。</p>
-        <button class="btn accent" id="btn-coach">和优势教练聊聊</button>
+        <p class="ct2">想知道优势如何变成职业选择、变现方向和成长路径？来和 AI 教练小悠聊聊你的组合。</p>
+        <button class="btn accent" id="btn-coach">和 AI 教练聊聊</button>
         <button class="btn ghost" id="btn-poster">📸 生成我的优势海报</button>
       </div>
 
@@ -237,6 +270,41 @@ body {
         本报告基于积极心理学性格优势研究设计，反映的是你的行为倾向而非能力标签。<br>
         <button class="back-btn" id="btn-restart2" style="text-decoration:underline">重新测一次</button>
       </p>
+    </section>
+
+    <!-- AI 教练页 -->
+    <section class="view" id="view-coach">
+      <div class="coach-top">
+        <button class="back-btn" id="btn-coach-back">← 返回报告</button>
+        <div class="coach-title">小悠 · AI 优势教练</div>
+        <button class="back-btn" id="coach-new-session">新会话</button>
+      </div>
+      <div class="coach-quota-bar" id="coach-quota"></div>
+      <div class="coach-chat" id="coach-chat"></div>
+      <div class="coach-status" id="coach-status"></div>
+      <div class="coach-input-row">
+        <textarea id="coach-input" rows="1" placeholder="说说你最近的事…"></textarea>
+        <button class="coach-send-btn" id="coach-send">发送</button>
+      </div>
+      <p class="coach-disclaimer">小悠是 AI 陪伴，不替代专业心理咨询 · 危机时刻请拨打心理援助热线 12356</p>
+
+      <div class="coach-paywall" id="coach-paywall" style="display:none">
+        <div class="paywall-card">
+          <h3>继续和小悠聊</h3>
+          <p class="pw-sub">免费体验已用完，解锁后不限会话次数</p>
+          <div class="pw-plans">
+            <div class="pw-plan"><span class="pt">月卡</span><span class="pp">¥9.9<span class="pu">/月</span></span><span class="pd">每日 60 轮对话</span></div>
+            <div class="pw-plan hot"><span class="pt">季卡 <i class="hot-tag">超值</i></span><span class="pp">¥24.9<span class="pu">/季</span></span><span class="pd">约 ¥8.3/月</span></div>
+            <div class="pw-plan"><span class="pt">年卡</span><span class="pp">¥69<span class="pu">/年</span></span><span class="pd">约 ¥5.8/月</span></div>
+          </div>
+          <div class="pw-redeem">
+            <input id="coach-code-input" placeholder="输入兑换码" autocomplete="off">
+            <button class="btn accent" id="coach-redeem">兑换解锁</button>
+          </div>
+          <p class="pw-note">试运营期：加教练微信付款后获取兑换码<br>（季度附赠 1 次真人优势教练文字答疑）</p>
+          <button class="btn ghost" id="coach-paywall-close">暂不解锁</button>
+        </div>
+      </div>
     </section>
 
   </div>
@@ -2829,6 +2897,321 @@ function reportEvent(eventType) {
 
 </script>
   <script>
+/* 优势测评 H5 - AI 优势教练「小悠」
+   设计铁律：不给建议、只引导；优势视角解读根因；情绪先共情后引导；
+   免费 1 次由服务端（coach_claim_free）强制执行，客户端只做展示。 */
+(function () {
+  const COACH_STORAGE_KEY = "sq_coach_v1";
+  const MODEL_PREFERENCE = ["glm-5.3-flash", "minimax-m3.1-flash", "deepseek-v4.1-flash", "hunyuan-2.0-thinking"];
+  const FREE_MAX_ROUNDS = 30;     // 免费会话轮次上限
+  const PAID_DAILY_ROUNDS = 60;   // 付费用户每日轮次上限
+  const HISTORY_WINDOW = 16;      // 送入模型的最大历史消息数（成本护栏）
+  const MAX_TOKENS = 600;         // 单次回复上限（成本护栏）
+
+  /* 危机关键词 → 固定安全响应（不经过大模型） */
+  const CRISIS_KEYWORDS = ["自杀", "自残", "不想活", "轻生", "伤害自己", "活不下去", "结束生命"];
+  const CRISIS_REPLY =
+    "听到你说这些，我很心疼，也很谢谢你愿意告诉我。\n\n" +
+    "你现在的感受很重要，但它太重了，不该由我们两个人单独扛。请一定让专业的人陪你一起：\n\n" +
+    "· 全国心理援助热线：12356（24 小时）\n" +
+    "· 也可以告诉身边你信任的人，哪怕只是坐在一起待一会儿。\n\n" +
+    "你的存在本身就有价值。我在这儿，但你值得更多人的陪伴。";
+
+  const $ = (sel) => document.querySelector(sel);
+
+  /* 本地助手（app.js 的同名函数在其闭包内，不可直接访问） */
+  function sqShow(viewId) {
+    document.querySelectorAll(".view").forEach(function (v) { v.classList.remove("active"); });
+    $(viewId).classList.add("active");
+    window.scrollTo(0, 0);
+  }
+  function sqLoadSession() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || null; }
+    catch (e) { return null; }
+  }
+
+  /* ---------- 会话状态 ---------- */
+  const state = {
+    messages: [],       // {role:'user'|'assistant', content}
+    rounds: 0,          // 本会话轮次
+    dayKey: "",         // 每日轮次计数键
+    dailyRounds: 0,
+    modelId: null,
+    conversationId: null,
+    entitled: false,    // 是否有有效付费权益
+    planName: null,
+    expiresAt: null
+  };
+
+  function loadLocal() {
+    try { return JSON.parse(localStorage.getItem(COACH_STORAGE_KEY)) || null; }
+    catch (e) { return null; }
+  }
+  function saveLocal() {
+    localStorage.setItem(COACH_STORAGE_KEY, JSON.stringify({
+      messages: state.messages.slice(-HISTORY_WINDOW),
+      rounds: state.rounds, dayKey: state.dayKey, dailyRounds: state.dailyRounds,
+      conversationId: state.conversationId
+    }));
+  }
+  function todayKey() { return new Date().toISOString().slice(0, 10); }
+
+  /* ---------- 系统提示词（注入测评结果） ---------- */
+  function buildSystemPrompt(result) {
+    const top5 = result.top5.map(function (k, i) {
+      return (i + 1) + ". " + DOMAINS[k].name + "（" + DOMAINS[k].keywords + "，得分 " + Number(result.domainScores[k]).toFixed(1) + "）";
+    }).join("\n");
+    const p = PERSONAS[result.top5[0]];
+    return [
+      "你是「小悠」，一位温暖的优势教练，基于积极心理学性格优势理念工作。",
+      "用户刚完成了天赋优势测评，以下是 TA 的结果：",
+      "Top5 优势：\n" + top5,
+      "灵魂动物：" + p.animal + "（" + p.animalWhy + "）",
+      "",
+      "你的核心信念：每个人本自具足。你的角色是陪伴者与引导者，不是老师，不是顾问。",
+      "",
+      "铁律（必须遵守）：",
+      "1. 绝不直接给建议。不说「你应该」「建议你」「你可以试试」。只用开放式提问引导用户自己看清自己。",
+      "2. 每次回复不超过 120 字，口语化、温和、像朋友聊天。一次最多问一个问题，不连环追问。",
+      "3. 用户描述最近做的事情时，从 TA 的 Top5 优势解读行为根因：为什么 TA 会这么做；并具体指出哪些地方是优势的正面发挥，哪些地方是优势过头带来的盲点。",
+      "4. 用户带着情绪来（焦虑、迷茫、委屈、自我怀疑）时：先共情接住情绪，陪伴，再温和引导 TA 看见情绪背后的需求。不强行正能量，不说教，不否定 TA 的感受。",
+      "5. 不评价对错，不拿 TA 和别人比较，不用「但是」转折否定用户刚说的话。",
+      "6. 用户问「我该怎么做」时，把问题还给 TA：例如「你心里其实更倾向哪个方向？」——帮 TA 看见自己已有的答案。",
+      "7. 超出优势陪伴范围的问题（医疗、法律、投资、技术等），温和说明这不是你能帮的，建议找对应的专业人士。",
+      "8. 如果对话中出现自伤、伤人等内容，停下常规对话，温和而坚定地建议 TA 拨打心理援助热线 12356 并告诉信任的人。"
+    ].join("\n");
+  }
+
+  /* ---------- UI 辅助 ---------- */
+  function addBubble(role, text) {
+    const wrap = $("#coach-chat");
+    const el = document.createElement("div");
+    el.className = "bubble " + (role === "user" ? "b-user" : "b-ai");
+    el.textContent = text;
+    wrap.appendChild(el);
+    wrap.scrollTop = wrap.scrollHeight;
+    return el;
+  }
+  function setGenerating(on) {
+    $("#coach-send").disabled = on;
+    $("#coach-input").disabled = on;
+    $("#coach-status").textContent = on ? "小悠正在想…" : "";
+  }
+  function showPaywall() {
+    $("#coach-paywall").style.display = "flex";
+  }
+
+  /* ---------- 入口 ---------- */
+  function showCoach() {
+    const s = sqLoadSession();
+    if (!s || !s.result) { alert("请先完成测评，AI 教练需要你的优势画像作为对话基础"); return; }
+    reportEvent("coach");
+    sqShow("#view-coach");
+    initCoach(s.result);
+  }
+
+  async function initCoach(result) {
+    const chat = $("#coach-chat");
+    chat.innerHTML = "";
+    state.modelId = null; state.entitled = false;
+
+    // 恢复本地会话
+    const saved = loadLocal();
+    if (saved && saved.messages && saved.messages.length) {
+      state.messages = saved.messages;
+      state.rounds = saved.rounds || 0;
+      if (saved.dayKey === todayKey()) { state.dayKey = saved.dayKey; state.dailyRounds = saved.dailyRounds || 0; }
+      state.conversationId = saved.conversationId || null;
+      state.messages.forEach(function (m) { addBubble(m.role, m.content); });
+    } else {
+      // 欢迎语本地生成（不耗 token）
+      const p = PERSONAS[result.top5[0]];
+      const hello = "我看过你的优势画像了🦊 你的 Top1 是「" + DOMAINS[result.top5[0]].name + "」，很像" + p.animal + "。\n\n最近有什么想聊的？发生了什么都行，我在这儿。";
+      state.messages = []; state.rounds = 0;
+      state.conversationId = "cv_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+      addBubble("assistant", hello);
+      state.messages.push({ role: "assistant", content: hello });
+      saveLocal();
+    }
+
+    // 云端配额检查
+    try {
+      if (!cloud) { $("#coach-status").textContent = "网络不可用，无法使用 AI 教练"; return; }
+      const { data, error } = await cloud.database.rpc("coach_status", { p_client_id: getClientId() });
+      if (error) throw error;
+      const st = typeof data === "string" ? JSON.parse(data) : data;
+      state.entitled = !!(st && st.plan);
+      state.planName = st && st.plan;
+      state.expiresAt = st && st.expiresAt;
+      updateQuotaHint();
+    } catch (e) {
+      console.warn("[coach] 配额检查失败:", e && e.message);
+      $("#coach-status").textContent = "配额检查失败，请稍后重试";
+    }
+
+    // 选模型（按偏好序取第一个可用项）
+    try {
+      const models = await cloud.llm.models.list();
+      for (const pref of MODEL_PREFERENCE) {
+        const hit = models.find(function (m) { return m.id === pref && m.disabled !== true; });
+        if (hit) { state.modelId = pref; break; }
+      }
+      if (!state.modelId) {
+        const first = models.find(function (m) { return m.disabled !== true; });
+        state.modelId = first ? first.id : null;
+      }
+    } catch (e) { /* 保持 null，发送时报错提示 */ }
+    if (!state.modelId) $("#coach-status").textContent = "AI 服务暂不可用";
+  }
+
+  function updateQuotaHint() {
+    let hint = "";
+    if (state.entitled) {
+      hint = state.planName + "会员 · " + (state.expiresAt || "") + " 到期 · 今日 " + state.dailyRounds + "/" + PAID_DAILY_ROUNDS;
+    } else {
+      hint = "免费体验 · 本会话 " + state.rounds + "/" + FREE_MAX_ROUNDS + " 轮";
+    }
+    $("#coach-quota").textContent = hint;
+  }
+
+  function roundsLimit() { return state.entitled ? PAID_DAILY_ROUNDS : FREE_MAX_ROUNDS; }
+
+  /* ---------- 发送 ---------- */
+  async function send() {
+    const input = $("#coach-input");
+    const text = (input.value || "").trim();
+    if (!text) return;
+    input.value = "";
+
+    // 危机关键词：固定安全响应，不经大模型
+    if (CRISIS_KEYWORDS.some(function (k) { return text.indexOf(k) >= 0; })) {
+      addBubble("user", text);
+      state.messages.push({ role: "user", content: text });
+      addBubble("assistant", CRISIS_REPLY);
+      state.messages.push({ role: "assistant", content: CRISIS_REPLY });
+      saveLocal();
+      return;
+    }
+
+    // 轮次限制
+    if (state.rounds >= roundsLimit() || state.dailyRounds >= PAID_DAILY_ROUNDS) {
+      if (state.entitled) { alert("今日对话次数已用完，明天再来聊吧"); }
+      else { showPaywall(); }
+      return;
+    }
+
+    // 免费额度抢占（服务端原子执行，仅在第一条用户消息时）
+    if (!state.entitled && state.rounds === 0) {
+      try {
+        const { data, error } = await cloud.database.rpc("coach_claim_free", { p_client_id: getClientId() });
+        if (error) throw error;
+        const r = typeof data === "string" ? JSON.parse(data) : data;
+        if (!r || r.ok !== true) { showPaywall(); return; }
+      } catch (e) {
+        console.warn("[coach] 额度抢占失败:", e && e.message);
+        $("#coach-status").textContent = "网络异常，请稍后重试";
+        return;
+      }
+    }
+
+    addBubble("user", text);
+    state.messages.push({ role: "user", content: text });
+    setGenerating(true);
+
+    const bubble = addBubble("assistant", "");
+    let reply = "";
+    try {
+      const s = sqLoadSession();
+      const history = state.messages.slice(-HISTORY_WINDOW).slice(0, -1);
+      const msgs = [{ role: "system", content: buildSystemPrompt(s.result) }]
+        .concat(history)
+        .concat([{ role: "user", content: text }]);
+      for await (const chunk of cloud.llm.chat.completions.create({
+        model: state.modelId,
+        messages: msgs,
+        stream: true,
+        temperature: 0.8,
+        max_tokens: MAX_TOKENS,
+        conversationId: state.conversationId
+      })) {
+        const d = chunk.choices[0] && chunk.choices[0].delta;
+        if (d && d.content) {
+          reply += d.content;
+          bubble.textContent = reply;
+          $("#coach-chat").scrollTop = $("#coach-chat").scrollHeight;
+        }
+      }
+    } catch (e) {
+      const code = e && e.error && e.error.code || "";
+      reply = reply || "（刚才走神了，请再发一次好吗？）";
+      if (code.indexOf("quota_") === 0) { reply = "（今天的 AI 额度用完了，明天再来～）"; }
+    }
+    if (!reply) reply = "（刚才走神了，请再发一次好吗？）";
+    bubble.textContent = reply;
+    state.messages.push({ role: "assistant", content: reply });
+    state.rounds++;
+    if (state.dayKey !== todayKey()) { state.dayKey = todayKey(); state.dailyRounds = 0; }
+    state.dailyRounds++;
+    saveLocal();
+    setGenerating(false);
+    updateQuotaHint();
+
+    // 免费会话到达上限 → 引导付费
+    if (!state.entitled && state.rounds >= FREE_MAX_ROUNDS) {
+      showPaywall();
+    }
+  }
+
+  /* ---------- 兑换码 ---------- */
+  async function redeem() {
+    const code = ($("#coach-code-input").value || "").trim();
+    if (!code) { alert("请输入兑换码"); return; }
+    try {
+      const { data, error } = await cloud.database.rpc("coach_redeem", { p_code: code, p_client_id: getClientId() });
+      if (error) throw error;
+      const r = typeof data === "string" ? JSON.parse(data) : data;
+      if (r && r.ok) {
+        state.entitled = true; state.planName = r.plan; state.expiresAt = r.expiresAt;
+        $("#coach-paywall").style.display = "none";
+        $("#coach-code-input").value = "";
+        updateQuotaHint();
+        addBubble("assistant", "兑换成功！你是「" + r.plan + "」会员，" + r.expiresAt + " 到期。咱们继续聊～");
+        state.messages.push({ role: "assistant", content: "兑换成功！你是「" + r.plan + "」会员，" + r.expiresAt + " 到期。咱们继续聊～" });
+        saveLocal();
+      } else {
+        alert(r && r.reason === "code_used" ? "这个兑换码已被使用" : "兑换码无效，请检查后重试");
+      }
+    } catch (e) {
+      alert("兑换失败，请稍后重试");
+    }
+  }
+
+  /* ---------- 启动绑定 ---------- */
+  document.addEventListener("DOMContentLoaded", function () {
+    const bind = function (sel, fn) {
+      const el = document.querySelector(sel);
+      if (el) el.addEventListener("click", fn);
+      else console.warn("[coach] 缺少元素:", sel);
+    };
+    bind("#btn-coach", showCoach);
+    bind("#btn-coach-back", function () { sqShow("#view-report"); });
+    bind("#coach-send", send);
+    bind("#coach-redeem", redeem);
+    bind("#coach-paywall-close", function () { $("#coach-paywall").style.display = "none"; });
+    bind("#coach-new-session", function () {
+      if (!confirm("开始新会话？当前会话将清空（免费额度仅 1 次会话）")) return;
+      localStorage.removeItem(COACH_STORAGE_KEY);
+      initCoach(sqLoadSession().result);
+    });
+    const input = $("#coach-input");
+    if (input) input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+    });
+  });
+})();
+
+</script>
+  <script>
 /* 优势测评 H5 - 页面交互与渲染 */
 (function () {
   const QUIZ_SHARE_URL = "https://strengths-quiz.app.workbuddy.host/?sharecode=DMNGNIYAI5";
@@ -3259,11 +3642,7 @@ function reportEvent(eventType) {
     bind("#btn-back", goBack);
     bind("#btn-restart", restart);
     bind("#btn-restart2", restart);
-    // 教练 CTA 占位：后续接入私域企微或支付链接
-    bind("#btn-coach", safe(() => {
-      reportEvent("coach");
-      alert("优势教练 1v1 服务入口（占位）：后续接入客服/下单页");
-    }));
+    // 教练入口由 coach.js 负责（含对话与付费逻辑）
     // 海报
     bind("#btn-poster", safe(renderPoster));
     bind("#btn-poster-close", closePoster);
