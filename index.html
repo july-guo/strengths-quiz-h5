@@ -2903,6 +2903,13 @@ function reportEvent(eventType) {
 (function () {
   const COACH_STORAGE_KEY = "sq_coach_v1";
   const MODEL_PREFERENCE = ["glm-5.3-flash", "minimax-m3.1-flash", "deepseek-v4.1-flash", "hunyuan-2.0-thinking"];
+  /* 思考型模型需显式降思考档位，否则思考过程会耗尽 max_tokens 导致回复为空。
+     实测：glm-5.3-flash effort=low 思考 chunk 为 0；deepseek 支持 enabled:false；glm-4.x 非思考不可用（网关拒参）。 */
+  const REASONING_PARAMS = {
+    "glm-5.3-flash": { reasoning: { effort: "low" } },
+    "minimax-m3.1-flash": { reasoning: { effort: "low" } },
+    "deepseek-v4.1-flash": { reasoning: { enabled: false } }
+  };
   const FREE_MAX_ROUNDS = 30;     // 免费会话轮次上限
   const PAID_DAILY_ROUNDS = 60;   // 付费用户每日轮次上限
   const HISTORY_WINDOW = 16;      // 送入模型的最大历史消息数（成本护栏）
@@ -3126,14 +3133,14 @@ function reportEvent(eventType) {
       const msgs = [{ role: "system", content: buildSystemPrompt(s.result) }]
         .concat(history)
         .concat([{ role: "user", content: text }]);
-      for await (const chunk of cloud.llm.chat.completions.create({
+      for await (const chunk of cloud.llm.chat.completions.create(Object.assign({
         model: state.modelId,
         messages: msgs,
         stream: true,
         temperature: 0.8,
         max_tokens: MAX_TOKENS,
         conversationId: state.conversationId
-      })) {
+      }, REASONING_PARAMS[state.modelId] || {}))) {
         const d = chunk.choices[0] && chunk.choices[0].delta;
         if (d && d.content) {
           reply += d.content;
@@ -3142,6 +3149,7 @@ function reportEvent(eventType) {
         }
       }
     } catch (e) {
+      console.error("[coach] LLM 调用失败:", e && (e.stack || e.message || e), e && e.error ? JSON.stringify(e.error) : "");
       const code = e && e.error && e.error.code || "";
       reply = reply || "（刚才走神了，请再发一次好吗？）";
       if (code.indexOf("quota_") === 0) { reply = "（今天的 AI 额度用完了，明天再来～）"; }
