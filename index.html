@@ -3056,19 +3056,24 @@ function reportEvent(eventType) {
       $("#coach-status").textContent = "配额检查失败，请稍后重试";
     }
 
-    // 选模型（按偏好序取第一个可用项）
-    try {
-      const models = await cloud.llm.models.list();
-      for (const pref of MODEL_PREFERENCE) {
-        const hit = models.find(function (m) { return m.id === pref && m.disabled !== true; });
-        if (hit) { state.modelId = pref; break; }
+    /* 选模型（按偏好序取第一个可用项）。做成 Promise，防止用户在列表返回前点发送造成 model=null */
+    state.modelReady = (async function () {
+      try {
+        const models = await cloud.llm.models.list();
+        for (const pref of MODEL_PREFERENCE) {
+          const hit = models.find(function (m) { return m.id === pref && m.disabled !== true; });
+          if (hit) { state.modelId = pref; break; }
+        }
+        if (!state.modelId) {
+          const first = models.find(function (m) { return m.disabled !== true; });
+          state.modelId = first ? first.id : null;
+        }
+      } catch (e) {
+        console.error("[coach] 模型列表获取失败:", e && (e.stack || e.message || e));
+        /* 保持 null，发送时报错提示 */
       }
-      if (!state.modelId) {
-        const first = models.find(function (m) { return m.disabled !== true; });
-        state.modelId = first ? first.id : null;
-      }
-    } catch (e) { /* 保持 null，发送时报错提示 */ }
-    if (!state.modelId) $("#coach-status").textContent = "AI 服务暂不可用";
+      if (!state.modelId) $("#coach-status").textContent = "AI 服务暂不可用（获取模型列表失败）";
+    })();
   }
 
   function updateQuotaHint() {
@@ -3128,18 +3133,23 @@ function reportEvent(eventType) {
     const bubble = addBubble("assistant", "");
     let reply = "";
     try {
+      /* 等模型列表就绪（防竞态：用户可能在初始化完成前点发送） */
+      if (state.modelReady) await state.modelReady;
+      if (!state.modelId) throw new Error("AI 模型未就绪，请稍后重试");
       const s = sqLoadSession();
       const history = state.messages.slice(-HISTORY_WINDOW).slice(0, -1);
       const msgs = [{ role: "system", content: buildSystemPrompt(s.result) }]
         .concat(history)
         .concat([{ role: "user", content: text }]);
+      /* 注意：不能传 conversationId —— SDK 会附加 X-Conversation-ID 请求头，
+         网关 CORS 白名单不含该头，浏览器预检会直接失败（Node 不受 CORS 影响测不出）。
+         对话上下文由前端 messages 数组自行维护，无需服务端会话。 */
       for await (const chunk of cloud.llm.chat.completions.create(Object.assign({
         model: state.modelId,
         messages: msgs,
         stream: true,
         temperature: 0.8,
-        max_tokens: MAX_TOKENS,
-        conversationId: state.conversationId
+        max_tokens: MAX_TOKENS
       }, REASONING_PARAMS[state.modelId] || {}))) {
         const d = chunk.choices[0] && chunk.choices[0].delta;
         if (d && d.content) {
@@ -3151,10 +3161,14 @@ function reportEvent(eventType) {
     } catch (e) {
       console.error("[coach] LLM 调用失败:", e && (e.stack || e.message || e), e && e.error ? JSON.stringify(e.error) : "");
       const code = e && e.error && e.error.code || "";
-      reply = reply || "（刚才走神了，请再发一次好吗？）";
-      if (code.indexOf("quota_") === 0) { reply = "（今天的 AI 额度用完了，明天再来～）"; }
+      if (code.indexOf("quota_") === 0) {
+        reply = "（今天的 AI 额度用完了，明天再来～）";
+      } else {
+        const detail = (e && (e.message || e.error && e.error.message) || "网络异常").slice(0, 60);
+        reply = reply || "（AI 连接失败：" + detail + "，请再试一次）";
+      }
     }
-    if (!reply) reply = "（刚才走神了，请再发一次好吗？）";
+    if (!reply) reply = "（AI 返回了空回复，请再发一次试试）";
     bubble.textContent = reply;
     state.messages.push({ role: "assistant", content: reply });
     state.rounds++;
